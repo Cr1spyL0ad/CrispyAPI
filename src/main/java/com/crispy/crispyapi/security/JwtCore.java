@@ -17,7 +17,9 @@ public class JwtCore {
 
     public String generateToken(Authentication auth) {
         User userDetails = (User) auth.getPrincipal();
-        return Jwts.builder().setSubject(userDetails.getUsername())
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .claim("id", userDetails.getId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + lifetime))
                 .signWith(SignatureAlgorithm.HS256, secret)

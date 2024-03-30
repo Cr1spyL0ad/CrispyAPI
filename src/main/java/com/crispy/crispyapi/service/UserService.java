@@ -2,6 +2,7 @@ package com.crispy.crispyapi.service;
 
 import com.crispy.crispyapi.dto.SignUpRequest;
 import com.crispy.crispyapi.dto.UserDto;
+import com.crispy.crispyapi.dto.UserWorkspaceDto;
 import com.crispy.crispyapi.model.User;
 import com.crispy.crispyapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,11 +59,9 @@ public class UserService implements ServiceInterface<User>, UserDetailsService {
     }
 
     @Override
-    public boolean update(User newUser, Long id) {
-        newUser.setId(id);
-        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+    public boolean update(User user) {
         try {
-            userRepository.save(newUser);
+            userRepository.save(user);
             return true;
         } catch (Exception e) {
             return false;
@@ -90,16 +89,19 @@ public class UserService implements ServiceInterface<User>, UserDetailsService {
         }
     }
     public UserDto convertToDto(User user) {
-        return new UserDto(
-                user.getId(),
-                user.getName(),
-                new ArrayList<>(user.getWorkspaces())
-        );
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setName(user.getName());
+        userDto.setWorkspaces(new ArrayList<>());
+        user.getWorkspaces().forEach(workspace -> {
+            UserWorkspaceDto userWorkspaceDto = new UserWorkspaceDto(workspace.getId(), workspace.getName());
+            userDto.getWorkspaces().add(userWorkspaceDto);
+        });
+        return userDto;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
-        return user;
+        return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
     }
 }

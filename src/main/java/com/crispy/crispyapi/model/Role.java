@@ -2,6 +2,8 @@ package com.crispy.crispyapi.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
 
@@ -17,8 +19,14 @@ public class Role {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    @ManyToOne
+
+    @ManyToOne(targetEntity = Workspace.class)
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;
+    public void build(Workspace workspace, User user, boolean isAdmin) {
+        this.user = user;
+        this.workspace = workspace;
+        this.isAdmin = isAdmin;
+    }
 
 }

@@ -55,13 +55,4 @@ public class SecurityController {
         String jwt = jwtCore.generateToken(authentication);
         return ResponseEntity.ok(jwt);
     }
-
-    @GetMapping("/user")
-    public String getUser(Principal principal) {
-        principal = SecurityContextHolder.getContext().getAuthentication();
-        if(principal == null)
-            return null;
-        System.out.println(principal.toString());
-        return principal.toString();
-    }
 }

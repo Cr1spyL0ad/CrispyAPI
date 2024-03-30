@@ -1,14 +1,15 @@
 package com.crispy.crispyapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Data
 @ToString
@@ -26,7 +27,18 @@ public class User implements UserDetails {
     @jakarta.persistence.Column(nullable = false)
     private String name;
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<Workspace> workspaces;
+    @EqualsAndHashCode.Exclude
+    @JoinTable(name = "users_workspaces",joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "workspace_id"))
+    private Set<Workspace> workspaces = new HashSet<>();
+
+    public void addWorkspace(Workspace workspace){
+        workspaces.add(workspace);
+        workspace.getUsers().add(this);
+    }
+    public void removeWorkspace(Workspace workspace){
+        workspaces.remove(workspace);
+        workspace.getUsers().remove(this);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -34,7 +46,6 @@ public class User implements UserDetails {
         list.add(new SimpleGrantedAuthority("user"));
         return list;
     }
-
     @Override
     public boolean isAccountNonExpired() {
         return true;
