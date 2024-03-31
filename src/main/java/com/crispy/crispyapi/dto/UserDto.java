@@ -14,4 +14,11 @@ public class UserDto {
     private Long id;
     private String name;
     private List<UserWorkspaceDto> workspaces;
+    @Data
+    @AllArgsConstructor
+    public static class UserWorkspaceDto {
+        private Long id;
+        private String name;
+    }
 }
+

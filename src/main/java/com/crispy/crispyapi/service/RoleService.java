@@ -22,15 +22,10 @@ public class RoleService implements ServiceInterface<Role> {
 
     @Override
     public Role read(Long id) throws Exception {
-        return null;
+        return roleRepository.findById(id).orElseThrow(() -> new Exception("Role not found"));
     }
-    public Role read(User user, Workspace workspace) throws Exception {
+    public Role read(User user, Workspace workspace) {
         return roleRepository.findRoleByUserAndWorkspace(user, workspace);
-    }
-
-    @Override
-    public List<Role> readAll() {
-        return null;
     }
 
     @Override
@@ -45,22 +40,17 @@ public class RoleService implements ServiceInterface<Role> {
 
     @Override
     public boolean delete(Long id) throws Exception {
-        try {
-            roleRepository.deleteById(id);
+            roleRepository.deleteRoleById(id).orElseThrow(() -> new Exception("Role not found"));
             return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
-    @Override
-    public boolean deleteAll() {
-        return false;
-    }
     public boolean isUserAdmin(User user, Workspace workspace) {
         return roleRepository.findRoleByUserAndWorkspace(user, workspace).isAdmin();
     }
     public boolean isUserExists(User user, Workspace workspace) {
         return roleRepository.existsRoleByUserAndWorkspace(user, workspace);
+    }
+    public List<Role> getAllAdmins(Workspace workspace) {
+        return roleRepository.findAllByWorkspaceAndIsAdmin(workspace, true);
     }
 }

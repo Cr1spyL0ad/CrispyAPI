@@ -2,7 +2,6 @@ package com.crispy.crispyapi.service;
 
 import com.crispy.crispyapi.dto.SignUpRequest;
 import com.crispy.crispyapi.dto.UserDto;
-import com.crispy.crispyapi.dto.UserWorkspaceDto;
 import com.crispy.crispyapi.model.User;
 import com.crispy.crispyapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,11 +53,6 @@ public class UserService implements ServiceInterface<User>, UserDetailsService {
     }
 
     @Override
-    public List<User> readAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
     public boolean update(User user) {
         try {
             userRepository.save(user);
@@ -67,7 +61,6 @@ public class UserService implements ServiceInterface<User>, UserDetailsService {
             return false;
         }
     }
-
 
     @Override
     public boolean delete(Long id) {
@@ -79,22 +72,13 @@ public class UserService implements ServiceInterface<User>, UserDetailsService {
         }
     }
 
-    @Override
-    public boolean deleteAll() {
-        try {
-            userRepository.deleteAll();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
     public UserDto convertToDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setName(user.getName());
         userDto.setWorkspaces(new ArrayList<>());
         user.getWorkspaces().forEach(workspace -> {
-            UserWorkspaceDto userWorkspaceDto = new UserWorkspaceDto(workspace.getId(), workspace.getName());
+            UserDto.UserWorkspaceDto userWorkspaceDto = new UserDto.UserWorkspaceDto(workspace.getId(), workspace.getName());
             userDto.getWorkspaces().add(userWorkspaceDto);
         });
         return userDto;

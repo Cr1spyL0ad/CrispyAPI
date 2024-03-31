@@ -30,16 +30,24 @@ public class User implements UserDetails {
     @EqualsAndHashCode.Exclude
     @JoinTable(name = "users_workspaces",joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "workspace_id"))
     private Set<Workspace> workspaces = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Role> roles = new ArrayList<>();
 
     public void addWorkspace(Workspace workspace){
         workspaces.add(workspace);
         workspace.getUsers().add(this);
     }
+
     public void removeWorkspace(Workspace workspace){
         workspaces.remove(workspace);
         workspace.getUsers().remove(this);
     }
-
+    @PreRemove
+    private void removeAssociations() {
+        for (Workspace workspace: this.workspaces) {
+            workspace.getUsers().remove(this);
+        }
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> list = new ArrayList<>();

@@ -1,5 +1,6 @@
 package com.crispy.crispyapi.controller;
 
+import com.crispy.crispyapi.dto.ChangePasswordDto;
 import com.crispy.crispyapi.model.User;
 import com.crispy.crispyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/main")
@@ -34,18 +37,21 @@ public class HomeController {
             return ResponseEntity.badRequest().body(e.toString());
         }
     }
+    @PutMapping("/users")
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal User user, @RequestBody ChangePasswordDto changePasswordDto) {
+        if (!Objects.equals(changePasswordDto.getNewPassword(), changePasswordDto.getNewPasswordConfirm()))
+            return ResponseEntity.badRequest().body("Passwords aren't the same");
+        user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        userService.update(user);
+        return ResponseEntity.ok().build();
+    }
 
-    @PatchMapping("/users")
-    public ResponseEntity<?> patchUser(@AuthenticationPrincipal User user, @RequestBody User userFromRequest) {
-        if(userFromRequest.getName() != null) {
-            user.setName(userFromRequest.getName());
+    @PatchMapping("/users/{name}")
+    public ResponseEntity<?> changeName(@AuthenticationPrincipal User user, @PathVariable String name) {
+        if(name.length() >= 4) {
+            user.setName(name);
             userService.update(user);
             return ResponseEntity.ok("Name was successfully changed");
-        }
-        if(userFromRequest.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(userFromRequest.getPassword()));
-            userService.update(user);
-            return ResponseEntity.ok("Password was successfully changed");
         }
         return ResponseEntity.badRequest().build();
     }
@@ -53,9 +59,9 @@ public class HomeController {
     public ResponseEntity<?> deleteUser(@AuthenticationPrincipal User user) {
         try {
             userService.delete(user.getId());
-            return ResponseEntity.ok("");
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.toString());
+            return ResponseEntity.badRequest().body(e.getLocalizedMessage());
         }
     }
 }

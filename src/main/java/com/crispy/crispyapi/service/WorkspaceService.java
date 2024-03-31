@@ -1,8 +1,7 @@
 package com.crispy.crispyapi.service;
 
-import com.crispy.crispyapi.dto.WorkspaceBoardDto;
 import com.crispy.crispyapi.dto.WorkspaceDto;
-import com.crispy.crispyapi.dto.WorkspaceUserDto;
+import com.crispy.crispyapi.model.User;
 import com.crispy.crispyapi.model.Workspace;
 import com.crispy.crispyapi.repository.WorkspaceRepository;
 import jakarta.transaction.Transactional;
@@ -25,15 +24,23 @@ public class WorkspaceService implements ServiceInterface<Workspace> {
         workspaceRepository.save(workspace);
         return true;
     }
+    public boolean create(String name, User user) {
+        try {
+            Workspace workspace = new Workspace();
+            workspace.setName(name);
+            workspace.getUsers().add(user);
+            workspaceRepository.save(workspace);
+            return true;
+        }
+        catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+            return false;
+        }
+    }
 
     @Override
     public Workspace read(Long id) throws Exception {
         return workspaceRepository.findWorkspaceById(id).orElseThrow(() -> new Exception("Workspace not found"));
-    }
-
-    @Override
-    public List<Workspace> readAll() {
-        return workspaceRepository.findAll();
     }
 
     @Override
@@ -53,27 +60,17 @@ public class WorkspaceService implements ServiceInterface<Workspace> {
         return true;
     }
 
-    @Override
-    public boolean deleteAll() {
-        try {
-            workspaceRepository.deleteAll();
-            return true;
-        }
-        catch (Exception e) {
-            return false;
-        }
-    }
     public WorkspaceDto convertToDto(Workspace workspace) {
         WorkspaceDto workspaceDto = new WorkspaceDto();
         workspaceDto.setId(workspace.getId());
         workspaceDto.setName(workspace.getName());
         workspaceDto.setUsers(new ArrayList<>());
         workspace.getUsers().forEach(user ->
-            workspaceDto.getUsers().add(new WorkspaceUserDto(user.getId(), user.getName(), roleService.isUserAdmin(user, workspace)))
+            workspaceDto.getUsers().add(new WorkspaceDto.WorkspaceUserDto(user.getId(), user.getName(), roleService.isUserAdmin(user, workspace)))
         );
         workspaceDto.setBoards(new ArrayList<>());
         workspace.getBoards().forEach(board ->
-            workspaceDto.getBoards().add(new WorkspaceBoardDto(board.getId(), board.getName()))
+            workspaceDto.getBoards().add(new WorkspaceDto.WorkspaceBoardDto(board.getId(), board.getName()))
         );
         return workspaceDto;
     }

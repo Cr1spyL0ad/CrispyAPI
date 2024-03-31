@@ -46,31 +46,31 @@ public class WorkspaceController {
         workspaceService.create(workspace);
         user.addWorkspace(workspace);
         userService.update(user);
-        Role role = new Role();
-        role.build(workspace, user, true);
-        roleService.create(role);
+        roleService.create(new Role(workspace, user, true));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     @DeleteMapping("/workspaces/{workspaceId}")
     public ResponseEntity<?> deleteWorkspace(@PathVariable Long workspaceId, @AuthenticationPrincipal User user) {
         try {
-            if(roleService.isUserAdmin(user, workspaceService.read(workspaceId))){
-                try {
+            Workspace workspace = workspaceService.read(workspaceId);
+            if(roleService.isUserExists(user, workspace)){
+                if(roleService.isUserAdmin(user, workspace)){
                     workspaceService.delete(workspaceId);
                     return ResponseEntity.ok().build();
-                } catch (Exception e) {
-                    return ResponseEntity.badRequest().body("Workspace not found");
+                }
+                else {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can't delete this workspace because you aren't admin");
                 }
             }
             else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can't delete this workspace because you aren't admin");
+                return ResponseEntity.badRequest().body("Can't find this user in this workspace");
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e);
+            return ResponseEntity.badRequest().body(e.getLocalizedMessage());
         }
     }
     @PatchMapping("/workspaces/{workspaceId}")
-    public ResponseEntity<?> patchWorkspace(@PathVariable Long workspaceId, @RequestBody String name, @AuthenticationPrincipal User user) {
+    public ResponseEntity<?> renameWorkspace(@PathVariable Long workspaceId, @RequestBody String name, @AuthenticationPrincipal User user) {
         try {
             Workspace workspace = workspaceService.read(workspaceId);
             if(!roleService.isUserAdmin(user,workspace))
@@ -87,17 +87,18 @@ public class WorkspaceController {
 
 
     @PutMapping("/workspaces/{workspaceId}/users/{username}")
-    public ResponseEntity<?> addUserToWorkspace(@PathVariable Long workspaceId, @PathVariable String username) {
+    public ResponseEntity<?> addUserToWorkspace(@PathVariable Long workspaceId, @PathVariable String username, @AuthenticationPrincipal User currentUser) {
         try {
-            User user = (User) userService.loadUserByUsername(username);
             Workspace workspace = workspaceService.read(workspaceId);
-            if(!roleService.isUserAdmin(user,workspace))
+            if(!roleService.isUserAdmin(currentUser,workspace))
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can't do this because you aren't admin");
-            user.addWorkspace(workspace);
-            userService.update(user);
-            Role role = new Role();
-            role.build(workspace, user, false);
-            roleService.create(role);
+            User userFromRequest = (User) userService.loadUserByUsername(username);
+            if(workspace.getUsers().contains(userFromRequest)) {
+                return ResponseEntity.badRequest().body("This user already exists in this workspace");
+            }
+            userFromRequest.addWorkspace(workspace);
+            userService.update(userFromRequest);
+            roleService.create(new Role(workspace, userFromRequest, false));
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getLocalizedMessage());
@@ -105,13 +106,13 @@ public class WorkspaceController {
 
     }
     @PatchMapping("/workspaces/{workspaceId}/users/{userId}")
-    public ResponseEntity<?> changeUserRoleInWorkspace(@PathVariable Long workspaceId, @PathVariable Long userId) {
+    public ResponseEntity<?> changeUserRoleInWorkspace(@PathVariable Long workspaceId, @PathVariable Long userId, @AuthenticationPrincipal User currentUser) {
         try {
-            User user = userService.read(userId);
             Workspace workspace = workspaceService.read(workspaceId);
-            if(!roleService.isUserAdmin(user,workspace))
+            if(!roleService.isUserAdmin(currentUser,workspace))
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can't do this because you aren't admin");
-            Role role = roleService.read(user, workspace);
+            User userFromRequest = userService.read(userId);
+            Role role = roleService.read(userFromRequest, workspace);
             role.setAdmin(!role.isAdmin());
             roleService.update(role);
             return ResponseEntity.ok().build();
@@ -131,6 +132,9 @@ public class WorkspaceController {
                 user.removeWorkspace(workspace);
                 userService.update(user);
                 roleService.delete(roleService.read(user, workspace).getId());
+                if(roleService.getAllAdmins(workspace).isEmpty()) {
+                    workspaceService.delete(workspace.getId());
+                }
                 return ResponseEntity.ok().build();
             }
             else {
