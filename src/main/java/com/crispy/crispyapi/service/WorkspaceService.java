@@ -7,9 +7,8 @@ import com.crispy.crispyapi.repository.WorkspaceRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
-import java.util.List;
+
 @Service
 public class WorkspaceService implements ServiceInterface<Workspace> {
     private final WorkspaceRepository workspaceRepository;
