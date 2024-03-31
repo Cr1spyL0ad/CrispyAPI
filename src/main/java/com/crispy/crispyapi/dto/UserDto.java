@@ -1,6 +1,5 @@
 package com.crispy.crispyapi.dto;
 
-import com.crispy.crispyapi.model.Workspace;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
