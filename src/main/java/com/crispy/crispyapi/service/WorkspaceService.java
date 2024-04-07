@@ -23,19 +23,6 @@ public class WorkspaceService implements ServiceInterface<Workspace> {
         workspaceRepository.save(workspace);
         return true;
     }
-    public boolean create(String name, User user) {
-        try {
-            Workspace workspace = new Workspace();
-            workspace.setName(name);
-            workspace.getUsers().add(user);
-            workspaceRepository.save(workspace);
-            return true;
-        }
-        catch (Exception e) {
-            System.out.println(e.getLocalizedMessage());
-            return false;
-        }
-    }
 
     @Override
     public Workspace read(Long id) throws Exception {

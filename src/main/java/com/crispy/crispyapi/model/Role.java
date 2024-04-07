@@ -18,9 +18,11 @@ public class Role {
     @jakarta.persistence.Column(unique = true, nullable = false)
     private Long id;
     private boolean isAdmin;
+
     @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "user_id")
     private User user;
+
     @ManyToOne(targetEntity = Workspace.class)
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;

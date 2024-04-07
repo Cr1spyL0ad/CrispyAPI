@@ -23,10 +23,12 @@ public class User implements UserDetails {
     private String password;
     @jakarta.persistence.Column(nullable = false)
     private String name;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @JoinTable(name = "users_workspaces",joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "workspace_id"))
     private Set<Workspace> workspaces = new HashSet<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Role> roles = new ArrayList<>();
 

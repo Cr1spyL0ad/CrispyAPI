@@ -21,15 +21,16 @@ public class Workspace {
     @jakarta.persistence.Column(unique = true, nullable = false)
     private Long id;
     private String name;
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "workspace_id")
+
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.REMOVE)
     private List<Board> boards = new ArrayList<>();
-    @ManyToMany(mappedBy = "workspaces")
-    @EqualsAndHashCode.Exclude
-    private Set<User> users = new HashSet<>();
+
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.REMOVE)
     private List<Role> roles = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "workspaces")
+    @EqualsAndHashCode.Exclude
+    private Set<User> users = new HashSet<>();
     @PreRemove
     private void removeAssociations() {
         for (User user: this.users) {

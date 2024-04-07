@@ -62,13 +62,10 @@ public class UserService implements ServiceInterface<User>, UserDetailsService {
     }
 
     @Override
-    public boolean delete(Long id) {
-        try {
-            userRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public boolean delete(Long id) throws Exception {
+        userRepository.deleteUserById(id).orElseThrow(() -> new Exception("User not found"));
+        return true;
+
     }
 
     public UserDto convertToDto(User user) {
