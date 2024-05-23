@@ -1,5 +1,6 @@
 package com.crispy.crispyapi.service;
 
+import com.crispy.crispyapi.model.Board;
 import com.crispy.crispyapi.model.Column;
 import com.crispy.crispyapi.repository.ColumnRepository;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,10 @@ public class ColumnService implements ServiceInterface<Column> {
     @Override
     public Column read(Long id) throws Exception {
         return columnRepository.findColumnById(id).orElseThrow(() -> new Exception("Column not found"));
+    }
+
+    public Column read(Board board, int position) throws Exception {
+        return columnRepository.findColumnByBoardAndPosition(board, position).orElseThrow(() -> new Exception("Column not found"));
     }
 
     @Override

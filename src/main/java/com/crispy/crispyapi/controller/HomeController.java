@@ -1,6 +1,6 @@
 package com.crispy.crispyapi.controller;
 
-import com.crispy.crispyapi.dto.ChangePasswordDto;
+import com.crispy.crispyapi.dto.ChangePasswordRequest;
 import com.crispy.crispyapi.model.User;
 import com.crispy.crispyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +38,10 @@ public class HomeController {
         }
     }
     @PutMapping("/users")
-    public ResponseEntity<?> changePassword(@AuthenticationPrincipal User user, @RequestBody ChangePasswordDto changePasswordDto) {
-        if (!Objects.equals(changePasswordDto.getNewPassword(), changePasswordDto.getNewPasswordConfirm()))
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal User user, @RequestBody ChangePasswordRequest changePasswordRequest) {
+        if (!Objects.equals(changePasswordRequest.getNewPassword(), changePasswordRequest.getNewPasswordConfirm()))
             return ResponseEntity.badRequest().body("Passwords aren't the same");
-        user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userService.update(user);
         return ResponseEntity.ok().build();
     }
