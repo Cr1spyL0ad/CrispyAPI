@@ -5,6 +5,8 @@ import com.crispy.crispyapi.dto.SignUpRequest;
 import com.crispy.crispyapi.repository.UserRepository;
 import com.crispy.crispyapi.security.JwtCore;
 import com.crispy.crispyapi.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,20 @@ public class SecurityController {
         this.authenticationManager = authenticationManager;
         this.jwtCore = jwtCore;
     }
+
+    @Operation(
+            summary = "Зарегестрировать пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Created"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request(various errors, check message)"
+                    )
+            }
+    )
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody SignUpRequest signUpRequest) {
         if(signUpRequest.getUsername().isEmpty() || signUpRequest.getName().isEmpty() || signUpRequest.getPassword().isEmpty())
@@ -43,6 +59,21 @@ public class SecurityController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something goes wrong");
     }
 
+
+    @Operation(
+            summary = "Авторизовать пользователя(возвращает JWT)",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK",
+                            useReturnTypeSchema = true
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "UNAUTHORIZED"
+                    )
+            }
+    )
     @PostMapping("/signin")
     public ResponseEntity<?> signIn(@RequestBody SignInRequest signInRequest) {
         Authentication authentication = null;
@@ -51,7 +82,6 @@ public class SecurityController {
         } catch (BadCredentialsException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtCore.generateToken(authentication);
         return ResponseEntity.ok(jwt);
     }

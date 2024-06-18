@@ -23,12 +23,10 @@ public class WorkspaceService implements ServiceInterface<Workspace> {
         workspaceRepository.save(workspace);
         return true;
     }
-
     @Override
     public Workspace read(Long id) throws Exception {
         return workspaceRepository.findWorkspaceById(id).orElseThrow(() -> new Exception("Workspace not found"));
     }
-
     @Override
     public boolean update(Workspace workspace) {
         try {
@@ -38,14 +36,12 @@ public class WorkspaceService implements ServiceInterface<Workspace> {
             return false;
         }
     }
-
     @Override
     @Transactional
     public boolean delete(Long id) throws Exception {
         workspaceRepository.deleteWorkspaceById(id).orElseThrow(() -> new Exception("Workspace not found"));
         return true;
     }
-
     public WorkspaceDto convertToDto(Workspace workspace) {
         WorkspaceDto workspaceDto = new WorkspaceDto();
         workspaceDto.setId(workspace.getId());
@@ -56,7 +52,7 @@ public class WorkspaceService implements ServiceInterface<Workspace> {
         );
         workspaceDto.setBoards(new ArrayList<>());
         workspace.getBoards().forEach(board ->
-            workspaceDto.getBoards().add(new WorkspaceDto.WorkspaceBoardDto(board.getId(), board.getName()))
+            workspaceDto.getBoards().add(new WorkspaceDto.WorkspaceBoardDto(board.getId(), board.getName(), board.getColor()))
         );
         return workspaceDto;
     }

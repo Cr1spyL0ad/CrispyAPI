@@ -27,5 +27,6 @@ public class WorkspaceDto {
     public static class WorkspaceBoardDto {
         private long id;
         private String name;
+        private String color;
     }
 }

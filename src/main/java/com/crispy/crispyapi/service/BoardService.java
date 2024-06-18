@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BoardService implements ServiceInterface<Board> {
-
     private final BoardRepository boardRepository;
     private final ColumnRepository columnRepository;
     @Autowired
@@ -35,12 +34,10 @@ public class BoardService implements ServiceInterface<Board> {
             return false;
         }
     }
-
     @Override
     public Board read(Long id) throws Exception {
         return boardRepository.findBoardById(id).orElseThrow(() -> new Exception("Board not found"));
     }
-
     @Override
     public boolean update(Board board) {
         try {
@@ -51,7 +48,6 @@ public class BoardService implements ServiceInterface<Board> {
             return false;
         }
     }
-
     @Override
     @Transactional
     public boolean delete(Long id) throws Exception {

@@ -4,6 +4,7 @@ import com.crispy.crispyapi.dto.SignUpRequest;
 import com.crispy.crispyapi.dto.UserDto;
 import com.crispy.crispyapi.model.User;
 import com.crispy.crispyapi.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -62,6 +63,7 @@ public class UserService implements ServiceInterface<User>, UserDetailsService {
     }
 
     @Override
+    @Transactional
     public boolean delete(Long id) throws Exception {
         userRepository.deleteUserById(id).orElseThrow(() -> new Exception("User not found"));
         return true;
@@ -74,7 +76,7 @@ public class UserService implements ServiceInterface<User>, UserDetailsService {
         userDto.setName(user.getName());
         userDto.setWorkspaces(new ArrayList<>());
         user.getWorkspaces().forEach(workspace -> {
-            UserDto.UserWorkspaceDto userWorkspaceDto = new UserDto.UserWorkspaceDto(workspace.getId(), workspace.getName());
+            UserDto.UserWorkspaceDto userWorkspaceDto = new UserDto.UserWorkspaceDto(workspace.getId(), workspace.getName(), workspace.getColor(), workspace.getUsers().size());
             userDto.getWorkspaces().add(userWorkspaceDto);
         });
         return userDto;

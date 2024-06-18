@@ -17,6 +17,8 @@ public class Board {
     @jakarta.persistence.Column(unique = true, nullable = false)
     private Long id;
     private String name;
+    private String color = "C35BE8";
+
     @OrderBy(value = "position")
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
     private List<Column> columns = new ArrayList<>();

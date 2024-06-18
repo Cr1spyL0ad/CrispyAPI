@@ -6,6 +6,8 @@ import com.crispy.crispyapi.model.User;
 import com.crispy.crispyapi.service.BoardService;
 import com.crispy.crispyapi.service.ColumnService;
 import com.crispy.crispyapi.service.RoleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,12 @@ public class ColumnController {
         this.boardService = boardService;
         this.roleService = roleService;
     }
+
+    @Operation(summary = "Создать колонку", responses = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @PostMapping("/boards/{boardId}/columns")
     public ResponseEntity<?> createColumn(@PathVariable long boardId, @AuthenticationPrincipal User user, @RequestBody String name) {
         try {
@@ -37,6 +45,13 @@ public class ColumnController {
             return ResponseEntity.badRequest().body(e.getLocalizedMessage());
         }
     }
+
+
+    @Operation(summary = "Удалить колонку", responses = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @DeleteMapping("/columns/{columnId}")
     public ResponseEntity<?> deleteColumn(@PathVariable long columnId, @AuthenticationPrincipal User user) {
         try {
@@ -49,6 +64,13 @@ public class ColumnController {
             return ResponseEntity.badRequest().body(e.getLocalizedMessage());
         }
     }
+
+
+    @Operation(summary = "Изменить имя колонки", responses = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @PatchMapping("/columns/{columnId}")
     public ResponseEntity<?> changeColumnName(@PathVariable long columnId, @AuthenticationPrincipal User user, @RequestBody String name) {
         try {
@@ -63,6 +85,12 @@ public class ColumnController {
             return ResponseEntity.badRequest().body(e.getLocalizedMessage());
         }
     }
+
+    @Operation(summary = "Изменить положение колонки", responses = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @PutMapping("/columns/{columnId}/{newPosition}")
     public ResponseEntity<?> changeColumnPosition(@PathVariable long columnId, @PathVariable int newPosition, @AuthenticationPrincipal User user) {
         try {

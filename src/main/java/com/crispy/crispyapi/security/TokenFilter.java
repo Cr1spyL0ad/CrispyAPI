@@ -39,15 +39,12 @@ public class TokenFilter extends OncePerRequestFilter {
             String headerAuth = request.getHeader("Authorization");
             if (headerAuth != null && headerAuth.startsWith("Bearer "))
                 jwt = headerAuth.substring(7);
-            System.out.println(jwt);
             if(jwt != null) {
                 username = jwtCore.getUsernameFromJwt(jwt);
-                System.out.println(SecurityContextHolder.getContext().getAuthentication());
                 if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     userDetails = userService.loadUserByUsername(username);
                     auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(auth);
-                    System.out.println(auth);
                 }
             }
         } catch (Exception e) {

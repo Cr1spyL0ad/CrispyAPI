@@ -22,7 +22,6 @@ public class CardService implements ServiceInterface<Card> {
         cardRepository.save(card);
         return true;
     }
-
     public boolean create(Card card, CreateCardRequest request) {
         card.setName(request.getName());
         card.setDescription(request.getDescription());
@@ -32,12 +31,10 @@ public class CardService implements ServiceInterface<Card> {
         cardRepository.save(card);
         return true;
     }
-
     @Override
     public Card read(Long id) throws Exception {
         return cardRepository.findCardById(id).orElseThrow(() -> new Exception("Card not found"));
     }
-
     @Override
     public boolean update(Card card) {
         try {
@@ -57,6 +54,14 @@ public class CardService implements ServiceInterface<Card> {
     }
 
     public CardDto convertToDto(Card card) {
-        return new CardDto(card.getId(), card.getName(), card.getDescription(), card.getUser().getName(), card.getUser().getId(), card.getCreationTime(), card.getDeadLineTime(), card.getStoryPoints());
+        return new CardDto(
+                card.getId(),
+                card.getName(),
+                card.getDescription(),
+                card.getUser().getName(),
+                card.getUser().getId(),
+                card.getCreationTime(),
+                card.getDeadLineTime(),
+                card.getStoryPoints());
     }
 }
